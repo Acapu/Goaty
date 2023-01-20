@@ -18,8 +18,11 @@ def intial_app(config_name='development'):
 
     db.init_app(app)
 
-    from proj.views.user import bp_user
-    app.register_blueprint(bp_user, url_prefix='/user')
+    # from proj.views.user import bp_user
+    # app.register_blueprint(bp_user, url_prefix='/user')
+
+    from proj.views.auth import bp_auth
+    app.register_blueprint(bp_auth)
 
     with app.app_context():
         # db.drop_all()
