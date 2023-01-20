@@ -21,6 +21,9 @@ def intial_app(config_name='development'):
     # from proj.views.user import bp_user
     # app.register_blueprint(bp_user, url_prefix='/user')
 
+    from proj.views.diary import bp_diary
+    app.register_blueprint(bp_diary)
+
     from proj.views.auth import bp_auth
     app.register_blueprint(bp_auth)
 
