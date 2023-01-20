@@ -129,3 +129,7 @@ dmypy.json
 .pyre/
 proj/config.py
 proj/config.py
+
+./secret.json
+secret.json
+proj/config.py
