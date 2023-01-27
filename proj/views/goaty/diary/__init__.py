@@ -52,10 +52,10 @@ def getTitle(params):
 
         # Call the Sheets API
         sheet = service.spreadsheets()
-        result = sheet.values().get(spreadsheetId=SPREADSHEET_ID,
-                                    range=RANGE_NAME).execute()
-        values = result.get('values', [])
-        status['data'] = values
+        result = service.spreadsheets().get(spreadsheetId=SPREADSHEET_ID, 
+                                            includeGridData=False).execute()
+        # values = result.get('values', [])
+        status['data'] = result
     except:
         status['message'] = func.error_log()
         status['code'] = 'error'
@@ -96,11 +96,24 @@ def createNewDiary():
         # Call the Sheets API
         sheet = service.spreadsheets()
         
+        rangeExist = None
+        try:
+            rangeExist = sheet.values().get(spreadsheetId=SPREADSHEET_ID, 
+                                                        range=datetime.datetime.now().strftime("%d.%m.%y"), 
+                                                        valueRenderOption="FORMATTED_VALUE", 
+                                                        dateTimeRenderOption="FORMATTED_STRING").execute()
+        except:
+            print("range doesnt exist")
+
+        if rangeExist:
+            raise Exception("Range already exist")
+        
         request = sheet.sheets().copyTo(
             spreadsheetId=SPREADSHEET_ID, 
             sheetId=1904020906, 
             body={'destination_spreadsheet_id' : SPREADSHEET_ID}).execute()
-
+        
+        # update sheet title
         newSheetName = {
             "requests" : [{
                 "updateSheetProperties" : {
@@ -113,6 +126,19 @@ def createNewDiary():
             }]
         }
         update = sheet.batchUpdate(spreadsheetId=SPREADSHEET_ID, body=newSheetName).execute()
+
+
+        # update title in the sheet
+        RANGE_NAME = str(datetime.datetime.now().strftime("%d.%m.%y")) + "!C2"
+        updateValue = [
+            [datetime.datetime.now().strftime("%d.%m.%y")]
+        ]
+        request = sheet.values().update(
+            spreadsheetId=SPREADSHEET_ID,
+            range=RANGE_NAME, 
+            valueInputOption="USER_ENTERED", 
+            body={"values": updateValue}).execute()
+
         status['data'] = [request, update]
     except:
         status['message'] = func.error_log()
